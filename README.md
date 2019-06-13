@@ -10,4 +10,12 @@ git fetch (fetch all remote branch information)
 
 git checkout -b sample (create local branch named 'sample')
 
+git commit -m "commit message" (commit staged changes)
+
+git stash (stash all changes)
+
+git stash pop (unstash the changes from previous stashing)
+
 git push origin sample (push all staged files to remote)
+
+
