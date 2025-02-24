@@ -6,3 +6,9 @@ build/
 *.aar
 *.war
 !gradle-wrapper.jar
+*.exe
+*.bat
+/env
+/.vs
+/ts_files
+/ts_files
