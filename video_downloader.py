@@ -2,6 +2,7 @@ import requests, shutil, m3u8, os, glob, subprocess
 import time
 from datetime import datetime
 import logging
+import ffmpeg
 
 def strip_end(text, suffix):
     if not text.endswith(suffix):
@@ -10,8 +11,9 @@ def strip_end(text, suffix):
 
 def download_file(url, local_filename):
     print(local_filename)
+    local_name=local_filename.split('/')[-1]
     r = requests.get(url, stream=True, headers=headers)
-    with open(f"ts_files/{local_filename}", 'wb') as f:
+    with open(f"ts_files/{local_name}", 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
@@ -22,7 +24,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 }
 
-
+#solo leveling
 s1='https://s6-e1.pipecdn.vip/ppot/_definst_/mp4:s15/kvod/dhp-wdzsj-01-03B2E9786dz0z.mp4/chunklist.m3u8?vendtime=1737360701&vhash=PrDZKroP08ZntlWdW-x2OXo3dBQJkah0vGDdLJJTn8M=&vCustomParameter=571973_2601.646.a081.7a20.6c9b.b15c.eeab.cac2_US_1_0&lb=907d804cdc4a4c9d32b2c73109ba9c61&us=1&vv=37ba80351eeae341918668abe2e6e63a&pub=CJSpDp4uCZ8qC2unDp9VLLDVCZOmCJesD3OwOJ0uCJetOJ8mEZPZEM8wOZ4rOpfbPM5YEcDXOp9VE3TXOMKsCMOmDMCvD30pCZaoP3WoCJKuDJasE6HbOp9VD3OrCM5bP3DZEMGrDsGuCMGqPJKnOJ0mCZOnP64oD63'
 s2='https://s6-e1.pipecdn.vip/ppot/_definst_/mp4:s6/gvod/dhp-wdzsj-02-01970DC3Azug1.mp4/chunklist.m3u8?vendtime=1737360764&vhash=E1l5YSO4ddSqho9kqeLFrS30f0Ah8KLrnuSEUqCywOA=&vCustomParameter=571973_2601.646.a081.7a20.6c9b.b15c.eeab.cac2_US_1_0&lb=4668a305922411a774b63d8a4e3372b5&us=1&vv=b6ef39502fb08e46a43f3354836b72cc&pub=CJSpDp4uCZ8qC2unDp9VLLDVCZOmCJesD3OwOJ0uCJetOJ8mEZPZEM8wOZ4rOpfbPM5YEcDXOp9VE3TXOMKsCMOmDMCvD30pCZaoP3WoCJKuDJasE6HbOp9VD3OrCM5bP3DZEMGrDsGuCMGqPJKnOJ0mCZOnP64oD63'
 s3='https://s3-e1.pipecdn.vip/ppot/_definst_/mp4:s11/jvod/dhp-wdzsj-03-03B3E3FD30p9q.mp4/chunklist.m3u8?vendtime=1737360781&vhash=tfRdU2WKHzQlCR73LLZ_gwpG74_VeQ0vgj5I1ZnZT1Q=&vCustomParameter=571973_2601.646.a081.7a20.6c9b.b15c.eeab.cac2_US_1_0&lb=808b2eaf7e1fb0edc495be54a500c893&us=1&vv=bf36a9865913053c1478026b67589a3d&pub=CJSpDp4uCZ8qC2unDp9VLLDVCZOmCJesD3OwOJ0uCJetOJ8mEZPZEM8wOZ4rOpfbPM5YEcDXOp9VE3TXOMKsCMOmDMCvD30pCZaoP3WoCJKuDJasE6HbOp9VD3OrCM5bP3DZEMGrDsGuCMGqPJKnOJ0mCZOnP64oD63'
@@ -37,8 +39,17 @@ s10='https://s10-e1.pipecdn.vip/ppot/_definst_/mp4:s13/vod/dhp-wdzsj-10-036EE6CD
 s11='https://s6-e1.pipecdn.vip/ppot/_definst_/mp4:s15/jvod/dhp-wdzsj-11-02DEAC918.mp4/chunklist.m3u8?vendtime=1737360965&vhash=vb93EmKynpgh0p5XTPeuxZr5Otvk2dShNTyQNpthSd8=&vCustomParameter=571973_2601.646.a081.7a20.6c9b.b15c.eeab.cac2_US_0_0&lb=a3ed58b2bdac0fe313b3793113e7e96f'
 s12='https://s5-e1.pipecdn.vip/ppot/_definst_/mp4:s14/ivod/dhp-wdzsj-12-0105020F5.mp4/chunklist.m3u8?vendtime=1737360974&vhash=uRBkMMN-WrKweQtcO9wGDupAihxi7N7ZGw7RMqIx9d8=&vCustomParameter=571973_2601.646.a081.7a20.6c9b.b15c.eeab.cac2_US_0_0&lb=df40978064323c0c98dedf8337d9e052'
 
+
+
+#pokemon
+p1='https://s10-e1.vinecash.vip/ppot/_definst_/mp4:s10/ivod/dhp-cwxjljcbhj-xuelabichuansuoshikongdexiangyu2001-0378320A5.mp4/chunklist.m3u8?vendtime=1745267040&vhash=F2I-Y75XM7_RxiDrz0Q5RgICI2cBXLUm7OHvBdNibdY=&vCustomParameter=0_0.0.0.0_US_1_0&lb=636b3fd0b7a1e9273b50a0aa325387be&us=1&proxy=Sp4mBMKnBdPfRcLZONDeBdPfS7npCJ0jPJ4kTcbkPM5ZT7LXR2vZRsryEPYO5hAObpEojpAvCBOniZSNCRUslZcOc1Qoc9StChkxlB6oDnSnjxQz7CnC2rbCIvkPNTvTd1XBcDlR1&vv=2f2c237b0fab81617ff5416c14c76028&pub=CJSqDJ0vC3OpEIusEJ5VLLDVCZOmCJesD3OwOJ0uCJetOJ8mEZ9ZCZ8wPc4pOJfcD34vEZLbCMDVD69aC6PYDJHbPM4vD31aCZWsEJOpDM4rDZGnOcPcDZXVPMKuOpWtP3OqDsOvOcOnP38sD38rC3KqOcKoOM9cCc2'
+p2='https://s10-e1.cubbautiful.com/ppot/_definst_/mp4:s10/ivod/dhp-cwxjljcbhj-qiuleimuvsshengjianshikailudiou2012-015E9E78C.mp4/chunklist.m3u8?vendtime=1745267071&vhash=V6Akl6wzcsRtgYEoHWn5M8oRoShrAQGmVCjbjFKnF8A=&vCustomParameter=0_0.0.0.0_US_1_0&lb=9a136a79a6b15d13de5ff817b7f0adfe&us=1&proxy=Sp4mBMKnBcDrOc9XTNHfPdLiBcDlRNnpCJ0jPJ4kOtLYP65rT6bcTMmkOsyslZcOc1Qoc9Snkh2piBItDhAwCBapiBeNCRUslZcOc1Qoc9Snkh2piBItDhAwCBapiJeNCRUslZcOc1Qoc9Snkh2piBItDhAwCBapiReNCRUs1&vv=abb37a3e94220c3f652f93c6c5b3c0c2&pub=CJSqDJ0vC3OtCIunCJ9VLLDVCZOmCJesD3OwOJ0uCJetOJ8mEZ9ZCZ8wPc4pOJfcD34vEZLbCMDVCMKqPZDbOZGuEJOpD3OtC3XZPZPbD6GmDpXYOcCvDZLVDJ4vC6KrCJamOZPaDp0sOZDZDZbaCs9ZPZKmC3bZCs6'
+
+
+
+
 # get list of ts files
-m3u8_url = s12
+m3u8_url = p2
 r = requests.get(m3u8_url, headers=headers)
 m3u8_master = m3u8.loads(r.text)
 
@@ -55,9 +66,12 @@ if not os.path.exists('ts_files'):
 
 # print statement can be deleted, they were placed prior to debugging purposes.
 for seg in m3u8_master.data['segments']:
-    append_url = seg['uri']
-    local_filename = append_url.split('?')[0]
-    url += append_url
+    # append_url = seg['uri']
+    # local_filename = append_url.split('?')[0]
+    # url += append_url
+
+    url = seg['uri']
+    local_filename = url.split('?')[0]
     print(f'downloading {seg["uri"]}')
     download_file(url, local_filename)
     url = url_copy
@@ -108,13 +122,13 @@ with open('merged.ts', 'wb') as merged:
 
 
 # convert ts to mp4 in OS
-# infile = cwd + '/'+ 'merged.ts'
-# outfile = cwd + '/'+ 'merged.mp4'
-# subprocess.run(['ffmpeg', '-i', infile, outfile])
-# input = ffmpeg.input(infile)
-# audio = input.audio.filter("aecho", 0.8, 0.9, 1000, 0.3)
-# video = input.video.hflip()
-# out = ffmpeg.output(audio, video, 'out.mp4')
+infile = cwd + '/'+ 'merged.ts'
+outfile = cwd + '/'+ 'merged.mp4'
+subprocess.run(['ffmpeg', '-i', infile, outfile])
+input = ffmpeg.input(infile)
+audio = input.audio.filter("aecho", 0.8, 0.9, 1000, 0.3)
+video = input.video.hflip()
+out = ffmpeg.output(audio, video, 'out.mp4')
 
 
 # convert ts to mp4 in Windows
